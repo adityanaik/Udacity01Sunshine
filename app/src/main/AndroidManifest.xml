@@ -43,6 +43,9 @@
             android:name=".data.WeatherProvider"
             android:authorities="ga.aditya.udacity01sunshine.app" />
 
+        <service android:name=".service.SunshineService" />
+
+
     </application>
 
 </manifest>
