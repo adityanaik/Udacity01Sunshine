@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import ga.aditya.udacity01sunshine.app.data.WeatherContract;
 import ga.aditya.udacity01sunshine.app.sync.SunshineSyncAdapter;
@@ -139,6 +140,8 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         // Get a reference to the ListView, and attach this adapter to it.
         mListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        View emptyView = rootView.findViewById(R.id.listview_forecast_empty);
+        mListView.setEmptyView(emptyView);
         mListView.setAdapter(mForecastAdapter);
         // We'll call our MainActivity
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -258,6 +261,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             // to, do so now.
             mListView.smoothScrollToPosition(mPosition);
         }
+        updateEmptyView();
     }
 
     @Override
@@ -269,6 +273,24 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mUseTodayLayout = useTodayLayout;
         if (mForecastAdapter != null) {
             mForecastAdapter.setUseTodayLayout(mUseTodayLayout);
+        }
+    }
+
+    /**
+     * Updates the empty list view with contextually relevant information
+     * which the user can use to determine why they aren't seeing weather.
+     */
+    private void updateEmptyView() {
+        if (mForecastAdapter.getCount() == 0) {
+            TextView textView = (TextView) getView().findViewById(R.id.listview_forecast_empty);
+            if (textView != null) {
+                // if cursor is empty, why? Do we have an invalid location
+                int message = R.string.empty_forecast_list;
+                if (!Utility.isNetworkAvailable(getActivity())) {
+                    message = R.string.empty_forecast_list_no_network;
+                }
+                textView.setText(message);
+            }
         }
     }
 }
