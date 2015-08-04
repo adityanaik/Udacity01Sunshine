@@ -19,8 +19,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 
 import ga.aditya.udacity01sunshine.app.sync.SunshineSyncAdapter;
 
@@ -28,6 +32,7 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     private boolean mTwoPane;
     private String mLocation;
@@ -61,6 +66,14 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
         forecastFragment.setUseTodayLayout(!mTwoPane);
 
         SunshineSyncAdapter.initializeSyncAdapter(this);
+
+        if (!checkPlayServices()) {
+            /**
+             * This is where we could either prompt a user that they should install
+             * the latest version of Google Play Services, or add an error snackbar
+             * that some features won't be available.
+             */
+        }
     }
 
     @Override
@@ -82,13 +95,18 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        // If Google Play Services is not available, some features, such as GCM-powered weather alerts,
+        // will nto be available.
+        if (!checkPlayServices()) {
+            // Store regID as null
+        }
         String location = Utility.getPreferredLocation(this);
         // update the location in our second pane using the fragment manager
         if (location != null && !location.equals(mLocation)) {
@@ -124,5 +142,25 @@ public class MainActivity extends ActionBarActivity implements ForecastFragment.
                     .setData(contentUri);
             startActivity(intent);
         }
+    }
+
+    /**
+     * Check the device to make sure it has the Google Play Services APK.
+     * If it doesn't, display a dialog to allow users to download the APK
+     * from the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode,
+                        this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(LOG_TAG, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
     }
 }
