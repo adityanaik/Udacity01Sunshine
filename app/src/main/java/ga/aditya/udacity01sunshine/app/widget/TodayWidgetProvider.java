@@ -9,7 +9,7 @@ import android.os.Bundle;
 import ga.aditya.udacity01sunshine.app.sync.SunshineSyncAdapter;
 
 /**
- * Provider for widget shoring today's weather.
+ * Provider for a horizontally expandable widget shoring today's weather.
  * <p/>
  * Delegates widget updating to {@link TodayWidgetIntentService} to ensure that
  * data retrieval is done on a background thread
