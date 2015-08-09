@@ -50,6 +50,7 @@ import ga.aditya.udacity01sunshine.app.MainActivity;
 import ga.aditya.udacity01sunshine.app.R;
 import ga.aditya.udacity01sunshine.app.Utility;
 import ga.aditya.udacity01sunshine.app.data.WeatherContract;
+import ga.aditya.udacity01sunshine.app.muzei.WeatherMuzeiSource;
 
 public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
 
@@ -347,6 +348,8 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
                         new String[]{Long.toString(dayTime.setJulianDay(julianStartDay - 1))});
 
 
+                updateWidgets();
+                updateMuzei();
                 notifyWeather();
             }
 
@@ -366,6 +369,16 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter {
         Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
                 .setPackage(context.getPackageName());
         context.sendBroadcast(dataUpdatedIntent);
+    }
+
+    private void updateMuzei() {
+        // Muzei is only compatible with Jelly Bean MR1+ devices, so there's no need to update the
+        // Muzei background on lower API level devices
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Context context = getContext();
+            context.startService(new Intent(ACTION_DATA_UPDATED)
+                    .setClass(context, WeatherMuzeiSource.class));
+        }
     }
 
     private void notifyWeather() {
